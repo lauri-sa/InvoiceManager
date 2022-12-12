@@ -2,5 +2,15 @@
 {
     internal class Product
     {
+        public string ProductName { get; set; }
+        public string Unit { get; set; }
+        public double Price { get; set; }
+
+        public Product(string productName, string unit, double price)
+        {
+            this.ProductName = productName;
+            this.Unit = unit;
+            this.Price = price;
+        }
     }
 }
