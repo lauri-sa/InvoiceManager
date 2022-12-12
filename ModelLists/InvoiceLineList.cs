@@ -11,6 +11,11 @@ namespace Harjoitustyo.ModelLists
             this.invoiceLineList.Add(invoiceLine);
         }
 
+        public List<InvoiceLine> GetInvoiceLineList()
+        {
+            return this.invoiceLineList;
+        }
+
         public double GetSum()
         {
             double sum = 0;

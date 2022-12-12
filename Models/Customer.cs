@@ -10,5 +10,10 @@
             this.Name = name;
             this.Address = address;
         }
+
+        public override string ToString()
+        {
+            return $"Asiakas\n{this.Name}\n{this.Address}";
+        }
     }
 }

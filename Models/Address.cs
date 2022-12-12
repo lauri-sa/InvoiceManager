@@ -12,5 +12,10 @@
             this.PostalCode = postalCode;
             this.City = city.ToUpper();
         }
+
+        public override string ToString()
+        {
+            return $"{this.StreetAddress}\n{this.PostalCode} {this.City}";
+        }
     }
 }
