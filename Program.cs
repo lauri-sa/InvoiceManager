@@ -327,7 +327,13 @@ namespace Harjoitustyo
 
                     if (invoiceList.Any(invoice => invoice.Customer.Name == customerName))
                     {
-                        PrintInvoice(invoiceList.First(invoice => invoice.Customer.Name == customerName));
+                        invoiceList.ForEach(invoice =>
+                        {
+                            if (invoice.Customer.Name == customerName)
+                            {
+                                PrintInvoice(invoice);
+                            }
+                        });
 
                         ReturnToMainMenu();
 
