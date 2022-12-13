@@ -9,7 +9,7 @@ namespace Harjoitustyo
         static void ErrorMessage(string message)
         {
             var color = Console.ForegroundColor;
-            
+
             Console.ForegroundColor = ConsoleColor.Red;
 
             Console.WriteLine(message);
@@ -93,11 +93,6 @@ namespace Harjoitustyo
             {
                 var product = ChooseProduct();
 
-                if (product == null)
-                {
-                    return null;
-                }
-
                 var quantity = ValidateInt("Anna tuotteen kappalemäärä: ");
 
                 invoiceLineList.AddToInvoiceLineList(new InvoiceLine(product, quantity));
@@ -132,39 +127,30 @@ namespace Harjoitustyo
         {
             Console.Clear();
 
-            var productList = ProductListRepo.GetProductList();
+            var productList = ProductList.GetProductList();
 
             int productID;
 
             while (true)
             {
-                if (productList.Count > 0)
+                productList.ForEach(product =>
                 {
-                    productList.ForEach(product =>
-                    {
-                        Console.WriteLine($"{product.ID}. {product.ProductName}\n");
-                    });
+                    Console.WriteLine($"{product.ID}. {product.ProductName}\n");
+                });
 
-                    Console.Write("Anna tuotteen numero: ");
+                Console.Write("Anna tuotteen numero: ");
 
-                    var userInput = Console.ReadLine();
+                var userInput = Console.ReadLine();
 
-                    if (!int.TryParse(userInput, out productID) || productID < 1 || productID > productList.Count)
-                    {
-                        Console.Clear();
+                if (!int.TryParse(userInput, out productID) || productID < 1 || productID > productList.Count)
+                {
+                    Console.Clear();
 
-                        ErrorMessage("Syöte on väärin\n");
-                    }
-                    else
-                    {
-                        return productList[productID - 1];
-                    }
+                    ErrorMessage("Syöte on väärin\n");
                 }
                 else
                 {
-                    Console.WriteLine("Tuotetietokanta on tyhjä. Lisää tietokantaan tuotteita ennenkuin voit jatkaa tästä pidemmälle.\n");
-                    ReturnToMainMenu();
-                    return null;
+                    return productList[productID - 1];
                 }
             }
         }
@@ -173,63 +159,66 @@ namespace Harjoitustyo
         {
             Console.Clear();
 
-            var company = CreateCompany();
-
-            var customer = CreateCustomer();
-
-            var invoiceLineList = CreateInvoiceLineList();
-
-            if (invoiceLineList == null)
+            if (ProductList.GetProductListLength() > 0)
             {
-                return;
+                var company = CreateCompany();
+
+                var customer = CreateCustomer();
+
+                var invoiceLineList = CreateInvoiceLineList();
+
+                var expirationDate = CreateExpirationDate();
+
+                string additionalInformation = string.Empty;
+
+                while (true)
+                {
+                    Console.Clear();
+
+                    Console.WriteLine("Haluatko antaa laskulle lisätietoja? (k/e)");
+
+                    var key = Console.ReadKey().Key;
+
+                    if (key == ConsoleKey.K)
+                    {
+                        additionalInformation = ValidateString("Anna laskun lisätieto: ");
+                        InvoiceList.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
+                        break;
+                    }
+                    else if (key == ConsoleKey.E)
+                    {
+                        InvoiceList.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
+                        break;
+                    }
+                }
             }
-
-            var expirationDate = CreateExpirationDate();
-
-            string additionalInformation = string.Empty;
-
-            while (true)
+            else
             {
-                Console.Clear();
-
-                Console.WriteLine("Haluatko antaa laskulle lisätietoja? (k/e)");
-                
-                var key = Console.ReadKey().Key;
-
-                if (key == ConsoleKey.K)
-                {
-                    additionalInformation = ValidateString("Anna laskun lisätieto: ");
-                    InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
-                    break;
-                }
-                else if (key == ConsoleKey.E)
-                {
-                    InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
-                    break;
-                }
+                Console.WriteLine("Tuotetietokanta on tyhjä. Lisää tuotetietokantaan tuotteita ennen kuin voit jatkaa laskun luontiin\n");
+                ReturnToMainMenu();
             }
         }
 
         static void PrintInvoice(Invoice invoice)
         {
             Console.WriteLine("LASKU\n");
-            
+
             Console.WriteLine("Laskuttaja\n{0,-50}{1,-50}", invoice.Company.CompanyName, $"Laskun numero: {invoice.ID}");
-            
+
             Console.WriteLine("{0,-50}{1,-50}", invoice.Company.Address.StreetAddress, $"Päiväys: {invoice.Date}");
-            
+
             Console.WriteLine("{0,-50}{1,-50}", $"{invoice.Company.Address.PostalCode} {invoice.Company.Address.City}", $"Eräpäivä: {invoice.ExpirationDate}");
-            
+
             Console.WriteLine($"\nAsiakas\n{invoice.Customer}\n");
-            
+
             Console.WriteLine($"Lisätiedot: {invoice.AdditionalInformation}\n");
-            
+
             Console.WriteLine("{0,-25}{1,-25}{2,-25}{3,-25}{4,-25}", "Tuote", "Määrä", "Yksikkö", "A-hinta", "Yhteensä");
-            
+
             invoice.InvoiceLineList.GetInvoiceLineList().ForEach(invoiceLine => Console.WriteLine("{0,-25}{1,-25}{2,-25}{3,-25}{4,-25}", invoiceLine.Product.ProductName, invoiceLine.Quantity, invoiceLine.Product.Unit, invoiceLine.Product.Price, invoiceLine.Sum));
-            
+
             Console.WriteLine("\n{0,-25}{1,-25}{2,-25}{3,-25}{4,-25}", "", "", "", "", $"YHTEENSÄ: {invoice.Sum} €");
-            
+
             Console.WriteLine($"\n{new String('*', Console.WindowWidth)}\n");
         }
 
@@ -237,7 +226,7 @@ namespace Harjoitustyo
         {
             Console.Clear();
 
-            var invoiceList = InvoiceListRepo.GetInvoiceList();
+            var invoiceList = InvoiceList.GetInvoiceList();
 
             if (invoiceList.Count > 0)
             {
@@ -258,7 +247,7 @@ namespace Harjoitustyo
 
             bool loop = true;
 
-            var invoiceList = InvoiceListRepo.GetInvoiceList();
+            var invoiceList = InvoiceList.GetInvoiceList();
 
             if (invoiceList.Count > 0)
             {
@@ -315,7 +304,7 @@ namespace Harjoitustyo
 
             bool loop = true;
 
-            var invoiceList = InvoiceListRepo.GetInvoiceList();
+            var invoiceList = InvoiceList.GetInvoiceList();
 
             if (invoiceList.Count > 0)
             {
@@ -377,10 +366,10 @@ namespace Harjoitustyo
             Console.Clear();
 
             bool loop = true;
-            
-            var productList = ProductListRepo.GetProductList();
-            
-            var invoiceList = InvoiceListRepo.GetInvoiceList();
+
+            var productList = ProductList.GetProductList();
+
+            var invoiceList = InvoiceList.GetInvoiceList();
 
             if (invoiceList.Count > 0)
             {
@@ -471,7 +460,7 @@ namespace Harjoitustyo
 
                 if (key == ConsoleKey.K)
                 {
-                    ProductListRepo.AddToProductList(CreateNewProduct());
+                    ProductList.AddToProductList(CreateNewProduct());
                 }
                 else if (key == ConsoleKey.E)
                 {
@@ -486,13 +475,13 @@ namespace Harjoitustyo
 
             var separator = $"\n\n{new String('*', 50)}\n";
 
-            var productList = ProductListRepo.GetProductList();
+            var productList = ProductList.GetProductList();
 
             if (productList.Count > 0)
             {
                 Console.WriteLine($"Tuotetietokannassa olevat tuotteet{separator}");
-                
-                productList.ForEach(product => { Console.WriteLine("{0,-25}{1,-25}{2}", $"Tuote: {product.ProductName}", $"Hinta: {product.Price} € / {product.Unit}", separator); } );
+
+                productList.ForEach(product => { Console.WriteLine("{0,-25}{1,-25}{2}", $"Tuote: {product.ProductName}", $"Hinta: {product.Price} € / {product.Unit}", separator); });
             }
             else
             {
@@ -503,7 +492,7 @@ namespace Harjoitustyo
         static Product CreateNewProduct()
         {
             var productName = ValidateString("Anna tuotteen nimi: ");
-            
+
             var unit = ValidateString("Anna tuotteen yksikkö: ");
 
             var price = ValidateDouble("Anna tuotteen hinta: ");
@@ -526,7 +515,7 @@ namespace Harjoitustyo
                 if (string.IsNullOrWhiteSpace(userInput))
                 {
                     Console.Clear();
-                    
+
                     ErrorMessage("Syöte ei voi olla tyhjä\n");
                 }
                 else
@@ -551,7 +540,7 @@ namespace Harjoitustyo
                 if (!int.TryParse(Console.ReadLine(), out userInput))
                 {
                     Console.Clear();
-                    
+
                     ErrorMessage("Syöte ei voi olla tyhjä ja sen täytyy olla numeerinen\n");
                 }
                 else
@@ -576,7 +565,7 @@ namespace Harjoitustyo
                 if (!double.TryParse(Console.ReadLine(), out userInput) || userInput <= 0)
                 {
                     Console.Clear();
-                    
+
                     ErrorMessage("Syöte ei voi olla tyhjä, sen täytyy olla numeerinen sekä yli 0\n");
                 }
                 else
@@ -643,7 +632,7 @@ namespace Harjoitustyo
 
                     ReturnToMainMenu();
                 }
-                else if(key == ConsoleKey.D4)
+                else if (key == ConsoleKey.D4)
                 {
                     PrintAllProducts();
 

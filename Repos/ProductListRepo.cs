@@ -5,39 +5,19 @@ namespace Harjoitustyo.Repos
 {
     internal class ProductListRepo
     {
-        private static List<Product> productList = new();
+        
 
-        public static void AddToProductList(Product product)
-        {
-            LoadProductList();
-
-            product.ID = productList.Count + 1;
-
-            productList.Add(product);
-
-            SaveProductList();
-        }
-
-        public static List<Product> GetProductList()
-        {
-            LoadProductList();
-
-            return productList;
-        }
-
-        private static void SaveProductList()
+        public static void SaveJSON(List<Product> productList)
         {
             string jsonString = JsonSerializer.Serialize(productList);
 
-            using (StreamWriter fs = File.CreateText("Products.json"))
+            using (StreamWriter sw = File.CreateText("Products.json"))
             {
-                fs.WriteLine(jsonString);
-
-                fs.Close();
+                sw.WriteLine(jsonString);
             }
         }
 
-        private static void LoadProductList()
+        public static List<Product> LoadJSON()
         {
             if (File.Exists("Products.json"))
             {
@@ -46,11 +26,13 @@ namespace Harjoitustyo.Repos
                 using (StreamReader sr = File.OpenText("Products.json"))
                 {
                     jsonString = sr.ReadLine();
-
-                    sr.Close();
                 }
 
-                productList = JsonSerializer.Deserialize<List<Product>>(jsonString);
+                return JsonSerializer.Deserialize<List<Product>>(jsonString);
+            }
+            else
+            {
+                return new List<Product>();
             }
         }
     }
