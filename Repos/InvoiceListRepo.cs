@@ -9,18 +9,18 @@ namespace Harjoitustyo.Repos
 
         public static void AddToInvoiceList(Invoice invoice)
         {
-            LoadInvoiceList();
+            //LoadInvoiceList();
 
             invoice.ID = invoiceList.Count + 1;
             
             invoiceList.Add(invoice);
 
-            SaveInvoiceList();
+            //SaveInvoiceList();
         }
 
         public static List<Invoice> GetInvoiceList()
         {
-            LoadInvoiceList();
+            //LoadInvoiceList();
 
             return invoiceList;
         }

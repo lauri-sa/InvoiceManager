@@ -1,4 +1,5 @@
-﻿using Harjoitustyo.Models;
+﻿using Harjoitustyo.ModelLists;
+using Harjoitustyo.Models;
 using Harjoitustyo.Repos;
 
 namespace Harjoitustyo
@@ -33,17 +34,159 @@ namespace Harjoitustyo
             }
         }
 
+        static Address CreateAddress(string info)
+        {
+            var streetAddress = ValidateString($"Anna {info} katuosoite: ");
+
+            var postalCode = ValidateString($"Anna {info} postinumero: ");
+
+            var city = ValidateString($"Anna {info} asuinpaikkakunta: ");
+
+            return new Address(streetAddress, postalCode, city);
+        }
+
+        static Customer CreateCustomer()
+        {
+            var name = ValidateString("Anna asiakkaan nimi: ");
+
+            var address = CreateAddress("asiakkaan");
+
+            return new Customer(name, address);
+        }
+
+        static Company CreateCompany()
+        {
+            var name = ValidateString("Anna laskuttajan nimi: ");
+
+            var address = CreateAddress("laskuttajan");
+
+            return new Company(name, address);
+        }
+
+        static InvoiceLineList CreateInvoiceLineList()
+        {
+            bool loop = true;
+
+            var invoiceLineList = new InvoiceLineList();
+
+            while (loop)
+            {
+                var product = ChooseProduct();
+
+                var quantity = ValidateInt("Anna tuotteen kappalemäärä: ");
+
+                invoiceLineList.AddToInvoiceLineList(new InvoiceLine(product, quantity));
+
+                while (true)
+                {
+                    Console.Clear();
+
+                    Console.WriteLine("Tuoterivi lisätty laskulle onnistuneesti. Haluatko lisätä uuden tuoterivin? (k/e)");
+
+                    var key = Console.ReadKey(true).Key;
+
+                    if (key == ConsoleKey.K)
+                    {
+                        break;
+                    }
+                    else if (key == ConsoleKey.E)
+                    {
+                        loop = false;
+
+                        Console.Clear();
+
+                        break;
+                    }
+                }
+            }
+
+            return invoiceLineList;
+        }
+
+        static Product ChooseProduct()
+        {
+            Console.Clear();
+
+            var productList = ProductListRepo.GetProductList();
+
+            int productID;
+
+            while (true)
+            {
+                if (productList.Count > 0)
+                {
+                    productList.ForEach(product =>
+                    {
+                        Console.WriteLine($"{product.ID}. {product.ProductName}\n");
+                    });
+
+                    Console.Write("Anna tuotteen numero: ");
+
+                    var userInput = Console.ReadLine();
+
+                    if (!int.TryParse(userInput, out productID) || productID < 1 || productID > productList.Count)
+                    {
+                        Console.Clear();
+
+                        ErrorMessage("Syöte on väärin\n");
+                    }
+                    else
+                    {
+                        return productList[productID - 1];
+                    }
+                }
+                else
+                {
+                    ProductListRepo.AddToProductList(CreateNewProduct());
+                }
+            }
+        }
+
+        static void AddInvoice()
+        {
+            Console.Clear();
+
+            var company = CreateCompany();
+
+            var customer = CreateCustomer();
+
+            var invoiceLineList = CreateInvoiceLineList();
+
+            var expirationDate = DateTime.Now.ToString("dd.MM.yyyy");
+
+            while (true)
+            {
+                Console.Clear();
+
+                Console.WriteLine("Haluatko antaa laskulle lisätietoja? (k/e)");
+                
+                var key = Console.ReadKey().Key;
+
+                if (key == ConsoleKey.K)
+                {
+                    var additionalInformation = ValidateString("Anna laskun lisätieto: ");
+                    InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
+                    break;
+                }
+                else if (key == ConsoleKey.E)
+                {
+                    InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate));
+                    break;
+                }
+            }
+        }
+
         static void PrintInvoice(Invoice invoice)
         {
             Console.WriteLine("LASKU\n");
             
-            Console.WriteLine($"Laskuttaja\n{invoice.Company.CompanyName}\t\t\tPäiväys: {invoice.Date}");
+            Console.WriteLine($"Laskuttaja\n{invoice.Company.CompanyName}\t\t\t\tPäiväys: {invoice.Date}");
             
-            Console.WriteLine($"{invoice.Company.Address.StreetAddress}\t\t\tLaskun numero: {invoice.ID}");
+            Console.WriteLine($"{invoice.Company.Address.StreetAddress}\t\t\t\tLaskun numero: {invoice.ID}");
             
-            Console.WriteLine($"{invoice.Company.Address.PostalCode} {invoice.Company.Address.City}\t\t\tEräpäivä: {invoice.ExpirationDate}\n");
+            Console.WriteLine($"{invoice.Company.Address.PostalCode} {invoice.Company.Address.City}\t\t\t\tEräpäivä: {invoice.ExpirationDate}\n");
             
-            Console.WriteLine($"Asiakas\n{invoice.Customer}");
+            Console.WriteLine($"Asiakas\n{invoice.Customer}\n");
             
             Console.WriteLine($"Lisätiedot: {invoice.AdditionalInformation}\n");
             
@@ -51,7 +194,7 @@ namespace Harjoitustyo
             
             invoice.InvoiceLineList.GetInvoiceLineList().ForEach(invoiceLine => Console.WriteLine(invoiceLine));
             
-            Console.WriteLine($"YHTEENSÄ: {invoice.Sum}");
+            Console.WriteLine($"YHTEENSÄ: {invoice.Sum} euroa");
             
             Console.WriteLine($"\n{new String('*', Console.WindowWidth)}\n");
         }
@@ -79,29 +222,39 @@ namespace Harjoitustyo
         {
             Console.Clear();
 
+            bool loop = true;
+
             var invoiceList = InvoiceListRepo.GetInvoiceList();
 
             if (invoiceList.Count > 0)
             {
-                while (true)
+                while (loop)
                 {
                     var id = ValidateInt("Anna laskun numero: ");
 
-                    if (id > invoiceList.Count)
+                    Console.Clear();
+
+                    if (id < 1 || id > invoiceList.Count)
                     {
-                        Console.WriteLine("Tällä numerolla ei löydy laskua\n");
-                        
-                        Console.WriteLine("Haluatko kokeilla uudestaan? (k/e)");
-
-                        var key = Console.ReadKey(true).Key;
-
-                        if (key == ConsoleKey.K)
+                        while (true)
                         {
-                            continue;
-                        }
-                        else if (key == ConsoleKey.E)
-                        {
-                            break;
+                            Console.Clear();
+
+                            Console.WriteLine("Tällä numerolla ei löydy laskua\n");
+
+                            Console.WriteLine("Haluatko kokeilla uudestaan? (k/e)");
+
+                            var key = Console.ReadKey(true).Key;
+
+                            if (key == ConsoleKey.K)
+                            {
+                                break;
+                            }
+                            else if (key == ConsoleKey.E)
+                            {
+                                loop = false;
+                                break;
+                            }
                         }
                     }
                     else
@@ -126,13 +279,17 @@ namespace Harjoitustyo
         {
             Console.Clear();
 
+            bool loop = true;
+
             var invoiceList = InvoiceListRepo.GetInvoiceList();
 
             if (invoiceList.Count > 0)
             {
-                while (true)
+                while (loop)
                 {
                     var customerName = ValidateString("Anna asiakkaan nimi: ");
+
+                    Console.Clear();
 
                     if (invoiceList.Any(invoice => invoice.Customer.Name == customerName))
                     {
@@ -144,19 +301,25 @@ namespace Harjoitustyo
                     }
                     else
                     {
-                        Console.WriteLine("Tällä nimellä ei löydy laskua\n");
-
-                        Console.WriteLine("Haluatko kokeilla uudestaan? (k/e)");
-
-                        var key = Console.ReadKey(true).Key;
-
-                        if (key == ConsoleKey.K)
+                        while (true)
                         {
-                            continue;
-                        }
-                        else if (key == ConsoleKey.E)
-                        {
-                            break;
+                            Console.Clear();
+
+                            Console.WriteLine("Tällä nimellä ei löydy laskua\n");
+
+                            Console.WriteLine("Haluatko kokeilla uudestaan? (k/e)");
+
+                            var key = Console.ReadKey(true).Key;
+
+                            if (key == ConsoleKey.K)
+                            {
+                                break;
+                            }
+                            else if (key == ConsoleKey.E)
+                            {
+                                loop = false;
+                                break;
+                            }
                         }
                     }
                 }
@@ -172,6 +335,8 @@ namespace Harjoitustyo
         static void PrintInvoicesBasedOnProduct()
         {
             Console.Clear();
+
+            bool loop = true;
             
             var productList = ProductListRepo.GetProductList();
             
@@ -181,34 +346,68 @@ namespace Harjoitustyo
             {
                 int productID;
 
-                while (true)
+                while (loop)
                 {
                     productList.ForEach(product =>
                     {
-                        Console.WriteLine($"{product.ID}.\t\t{product.ProductName}\n");
+                        Console.WriteLine($"{product.ID}. {product.ProductName}\n");
                     });
 
                     Console.Write("Anna tuotteen numero: ");
 
                     var userInput = Console.ReadLine();
 
+                    Console.Clear();
+
                     if (!int.TryParse(userInput, out productID) || productID < 1 || productID > productList.Count)
                     {
-                        Console.Clear();
-
                         ErrorMessage("Syöte on väärin\n");
                     }
                     else
                     {
+                        bool found = false;
+
                         invoiceList.ForEach(invoice =>
                         {
                             var invoiceLineList = invoice.InvoiceLineList.GetInvoiceLineList();
 
                             if (invoiceLineList.Any(invoiceLine => invoiceLine.Product.ID == productID))
                             {
+                                found = true;
                                 PrintInvoice(invoice);
                             }
                         });
+
+                        if (found)
+                        {
+                            ReturnToMainMenu();
+
+                            break;
+                        }
+                        else
+                        {
+                            while (true)
+                            {
+                                Console.Clear();
+
+                                Console.WriteLine("Tällä tuotteella ei löytynyt laskuja\n");
+
+                                Console.WriteLine("Haluatko kokeilla uudestaan? (k/e)");
+
+                                var key = Console.ReadKey().Key;
+
+                                if (key == ConsoleKey.K)
+                                {
+                                    Console.Clear();
+                                    break;
+                                }
+                                else if (key == ConsoleKey.E)
+                                {
+                                    loop = false;
+                                    break;
+                                }
+                            }
+                        }
                     }
                 }
             }
@@ -381,7 +580,7 @@ namespace Harjoitustyo
 
                 if (key == ConsoleKey.D1)
                 {
-                    // Some method
+                    AddInvoice();
                 }
                 else if (key == ConsoleKey.D2)
                 {

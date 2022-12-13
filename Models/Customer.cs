@@ -13,7 +13,7 @@
 
         public override string ToString()
         {
-            return $"Asiakas\n{this.Name}\n{this.Address}";
+            return $"{this.Name}\n{this.Address}";
         }
     }
 }
