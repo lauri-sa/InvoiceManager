@@ -4,23 +4,28 @@ namespace Harjoitustyo.ModelLists
 {
     internal class InvoiceLineList
     {
-        private List<InvoiceLine> invoiceLineList = new();
+        public List<InvoiceLine> InvoiceLines { get; set; }
+
+        public InvoiceLineList()
+        {
+            this.InvoiceLines = new();
+        }
 
         public void AddToInvoiceLineList(InvoiceLine invoiceLine)
         {
-            this.invoiceLineList.Add(invoiceLine);
+            this.InvoiceLines.Add(invoiceLine);
         }
 
         public List<InvoiceLine> GetInvoiceLineList()
         {
-            return this.invoiceLineList;
+            return this.InvoiceLines;
         }
 
         public double GetSum()
         {
             double sum = 0;
 
-            foreach(InvoiceLine invoiceLine in invoiceLineList)
+            foreach(InvoiceLine invoiceLine in InvoiceLines)
             {
                 sum += invoiceLine.Sum;
             }

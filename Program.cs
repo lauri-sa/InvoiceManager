@@ -63,6 +63,26 @@ namespace Harjoitustyo
             return new Company(name, address);
         }
 
+        static string CreateExpirationDate()
+        {
+            int days;
+
+            while (true)
+            {
+                Console.Write("Anna maksuaika päivinä (minimi 14 päivää): ");
+
+                if (!int.TryParse(Console.ReadLine(), out days) || days < 14)
+                {
+                    Console.Clear();
+                    ErrorMessage("Syöte on väärin\n");
+                }
+                else
+                {
+                    return DateTime.Now.AddDays(days).ToString("dd.MM.yyyy");
+                }
+            }
+        }
+
         static InvoiceLineList CreateInvoiceLineList()
         {
             bool loop = true;
@@ -72,6 +92,11 @@ namespace Harjoitustyo
             while (loop)
             {
                 var product = ChooseProduct();
+
+                if (product == null)
+                {
+                    return null;
+                }
 
                 var quantity = ValidateInt("Anna tuotteen kappalemäärä: ");
 
@@ -137,7 +162,9 @@ namespace Harjoitustyo
                 }
                 else
                 {
-                    ProductListRepo.AddToProductList(CreateNewProduct());
+                    Console.WriteLine("Tuotetietokanta on tyhjä. Lisää tietokantaan tuotteita ennenkuin voit jatkaa tästä pidemmälle.\n");
+                    ReturnToMainMenu();
+                    return null;
                 }
             }
         }
@@ -152,7 +179,14 @@ namespace Harjoitustyo
 
             var invoiceLineList = CreateInvoiceLineList();
 
-            var expirationDate = DateTime.Now.ToString("dd.MM.yyyy");
+            if (invoiceLineList == null)
+            {
+                return;
+            }
+
+            var expirationDate = CreateExpirationDate();
+
+            string additionalInformation = string.Empty;
 
             while (true)
             {
@@ -164,13 +198,13 @@ namespace Harjoitustyo
 
                 if (key == ConsoleKey.K)
                 {
-                    var additionalInformation = ValidateString("Anna laskun lisätieto: ");
+                    additionalInformation = ValidateString("Anna laskun lisätieto: ");
                     InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
                     break;
                 }
                 else if (key == ConsoleKey.E)
                 {
-                    InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate));
+                    InvoiceListRepo.AddToInvoiceList(new Invoice(company, customer, invoiceLineList, expirationDate, additionalInformation));
                     break;
                 }
             }
@@ -180,21 +214,21 @@ namespace Harjoitustyo
         {
             Console.WriteLine("LASKU\n");
             
-            Console.WriteLine($"Laskuttaja\n{invoice.Company.CompanyName}\t\t\t\tPäiväys: {invoice.Date}");
+            Console.WriteLine("Laskuttaja\n{0,-50}{1,-50}", invoice.Company.CompanyName, $"Laskun numero: {invoice.ID}");
             
-            Console.WriteLine($"{invoice.Company.Address.StreetAddress}\t\t\t\tLaskun numero: {invoice.ID}");
+            Console.WriteLine("{0,-50}{1,-50}", invoice.Company.Address.StreetAddress, $"Päiväys: {invoice.Date}");
             
-            Console.WriteLine($"{invoice.Company.Address.PostalCode} {invoice.Company.Address.City}\t\t\t\tEräpäivä: {invoice.ExpirationDate}\n");
+            Console.WriteLine("{0,-50}{1,-50}", $"{invoice.Company.Address.PostalCode} {invoice.Company.Address.City}", $"Eräpäivä: {invoice.ExpirationDate}");
             
-            Console.WriteLine($"Asiakas\n{invoice.Customer}\n");
+            Console.WriteLine($"\nAsiakas\n{invoice.Customer}\n");
             
             Console.WriteLine($"Lisätiedot: {invoice.AdditionalInformation}\n");
             
-            Console.WriteLine("Tuote\t\t\tMäärä\t\t\tYksikkö\t\t\tA-hinta\t\t\tYhteensä");
+            Console.WriteLine("{0,-25}{1,-25}{2,-25}{3,-25}{4,-25}", "Tuote", "Määrä", "Yksikkö", "A-hinta", "Yhteensä");
             
-            invoice.InvoiceLineList.GetInvoiceLineList().ForEach(invoiceLine => Console.WriteLine(invoiceLine));
+            invoice.InvoiceLineList.GetInvoiceLineList().ForEach(invoiceLine => Console.WriteLine("{0,-25}{1,-25}{2,-25}{3,-25}{4,-25}", invoiceLine.Product.ProductName, invoiceLine.Quantity, invoiceLine.Product.Unit, invoiceLine.Product.Price, invoiceLine.Sum));
             
-            Console.WriteLine($"YHTEENSÄ: {invoice.Sum} euroa");
+            Console.WriteLine("\n{0,-25}{1,-25}{2,-25}{3,-25}{4,-25}", "", "", "", "", $"YHTEENSÄ: {invoice.Sum} €");
             
             Console.WriteLine($"\n{new String('*', Console.WindowWidth)}\n");
         }
@@ -444,15 +478,15 @@ namespace Harjoitustyo
         {
             Console.Clear();
 
-            var separator = $"\n{new String('*', 50)}\n";
+            var separator = $"\n\n{new String('*', 50)}\n";
 
             var productList = ProductListRepo.GetProductList();
 
             if (productList.Count > 0)
             {
-                Console.WriteLine($"Tuotelistalla olevat tuotteet\n{separator}");
+                Console.WriteLine($"Tuotetietokannassa olevat tuotteet{separator}");
                 
-                productList.ForEach(product => { Console.Write($"Tuote: {product.ProductName}\t\tHinta: {product.Price} e / {product.Unit}\n{separator}\n"); } );
+                productList.ForEach(product => { Console.WriteLine("{0,-25}{1,-25}{2}", $"Tuote: {product.ProductName}", $"Hinta: {product.Price} € / {product.Unit}", separator); } );
             }
             else
             {
@@ -552,11 +586,22 @@ namespace Harjoitustyo
         {
             Console.Title = "Laskutussovellus";
 
+            if (OperatingSystem.IsWindows())
+            {
+                Console.WindowWidth = 125;
+            }
+
+            Console.CursorVisible = false;
+
+            Console.BackgroundColor = ConsoleColor.White;
+
+            Console.ForegroundColor = ConsoleColor.Black;
+
+            Console.OutputEncoding = System.Text.Encoding.UTF8;
+
             while (true)
             {
                 Console.Clear();
-
-                Console.CursorVisible = false;
 
                 Console.WriteLine("Laskutussovellus\n");
 
