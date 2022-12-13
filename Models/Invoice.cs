@@ -1,5 +1,4 @@
 ﻿using Harjoitustyo.ModelLists;
-using System.Text.Json.Serialization;
 
 namespace Harjoitustyo.Models
 {

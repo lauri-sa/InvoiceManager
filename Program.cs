@@ -1,6 +1,5 @@
 ﻿using Harjoitustyo.ModelLists;
 using Harjoitustyo.Models;
-using Harjoitustyo.Repos;
 
 namespace Harjoitustyo
 {

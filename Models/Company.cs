@@ -10,10 +10,5 @@
             this.CompanyName = companyName;
             this.Address = address;
         }
-
-        public override string ToString()
-        {
-            return $"Laskuttaja\n{this.CompanyName}\n{this.Address}";
-        }
     }
 }

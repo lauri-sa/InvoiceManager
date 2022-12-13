@@ -27,6 +27,8 @@ namespace Harjoitustyo.ModelLists
 
         public static int GetProductListLength()
         {
+            productList = GetProductList();
+
             return productList.Count;
         }
     }
