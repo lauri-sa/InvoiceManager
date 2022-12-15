@@ -1,5 +1,8 @@
 ﻿namespace Harjoitustyo.Models
 {
+    /// <summary>
+    /// Luokka joka toimii tuotteen tietomallina
+    /// </summary>
     internal class Product
     {
         public int ID { get; set; }

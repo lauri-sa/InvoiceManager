@@ -2,6 +2,9 @@
 
 namespace Harjoitustyo.Models
 {
+    /// <summary>
+    /// Luokka joka toimii laskun tietomallina
+    /// </summary>
     internal class Invoice
     {
         public int ID { get; set; }

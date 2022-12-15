@@ -1,5 +1,8 @@
 ﻿namespace Harjoitustyo.Models
 {
+    /// <summary>
+    /// Luokka joka toimii laskuttavan yrityksen tietomallina
+    /// </summary>
     internal class Company
     {
         public string CompanyName { get; set; }

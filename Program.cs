@@ -5,6 +5,10 @@ namespace Harjoitustyo
 {
     internal class Program
     {
+        /// <summary>
+        /// Tulostaa parametrinä annetun merkkijonon punaisella konsoliin
+        /// </summary>
+        /// <param name="message">Merkkijono</param>
         static void ErrorMessage(string message)
         {
             var color = Console.ForegroundColor;
@@ -16,6 +20,9 @@ namespace Harjoitustyo
             Console.ForegroundColor = color;
         }
 
+        /// <summary>
+        /// Siirtää kursorin konsolin vasempaan yläkulmaan ja jää odottamaan enter napin painallusta käyttäjältä
+        /// </summary>
         static void ReturnToMainMenu()
         {
             Console.Write("Paina enter palataksesi päävalikkoon");
@@ -33,6 +40,11 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Kutsuu erillisiä metodeita jotka palauttavat käyttäjän antamat arvot muuttujiin ja palauttaa niiden avulla luodun Address olion
+        /// </summary>
+        /// <param name="info"></param>
+        /// <returns>Address tyyppinen olio</returns>
         static Address CreateAddress(string info)
         {
             var streetAddress = ValidateString($"Anna {info} katuosoite: ");
@@ -44,6 +56,10 @@ namespace Harjoitustyo
             return new Address(streetAddress, postalCode, city);
         }
 
+        /// <summary>
+        /// Kutsuu erillisiä metodeita jotka palauttavat käyttäjän antamat arvot muuttujiin ja palauttaa niiden avulla luodun Customer olion
+        /// </summary>
+        /// <returns>Customer tyyppinen olio</returns>
         static Customer CreateCustomer()
         {
             var name = ValidateString("Anna asiakkaan nimi: ");
@@ -53,6 +69,10 @@ namespace Harjoitustyo
             return new Customer(name, address);
         }
 
+        /// <summary>
+        /// Kutsuu erillisiä metodeita jotka palauttavat käyttäjän antamat arvot muuttujiin ja palauttaa niiden avulla luodun Company olion
+        /// </summary>
+        /// <returns>Company tyyppinen olio</returns>
         static Company CreateCompany()
         {
             var name = ValidateString("Anna laskuttajan nimi: ");
@@ -62,6 +82,10 @@ namespace Harjoitustyo
             return new Company(name, address);
         }
 
+        /// <summary>
+        /// Kysyy käyttäjältä kokonaisluvun, lisää sen nykyiseen päivämäärään AddDays metodilla ja palauttaa tämän lopputuloksen merkkijonona
+        /// </summary>
+        /// <returns>Päivämäärä merkkijonona</returns>
         static string CreateExpirationDate()
         {
             int days;
@@ -82,6 +106,10 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Luo laskurivikokoelman, pyytää käyttäjältä tiedot laskuriviin ja lisää laskurivin kokoelmaan. Palauttaa laskurivikokoelman.
+        /// </summary>
+        /// <returns>InvoiceLineList tyyppisen olion</returns>
         static InvoiceLineList CreateInvoiceLineList()
         {
             bool loop = true;
@@ -122,6 +150,10 @@ namespace Harjoitustyo
             return invoiceLineList;
         }
 
+        /// <summary>
+        /// Tulostaa tuotelistan, kysyy käyttäjältä tuotteen numeroa ja palauttaa tuotteen listasta käyttäjän syötteen perusteella
+        /// </summary>
+        /// <returns>Product tyyppisen olion</returns>
         static Product ChooseProduct()
         {
             Console.Clear();
@@ -154,6 +186,9 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Luo laskun ja lisää sen laskulistaan
+        /// </summary>
         static void AddInvoice()
         {
             Console.Clear();
@@ -198,6 +233,10 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Tulostaa konsoliin parametrinä saadun Invoice olion tiedot
+        /// </summary>
+        /// <param name="invoice">Invoice tyyppinen olio</param>
         static void PrintInvoice(Invoice invoice)
         {
             Console.WriteLine("LASKU\n");
@@ -221,6 +260,9 @@ namespace Harjoitustyo
             Console.WriteLine($"\n{new String('*', Console.WindowWidth)}\n");
         }
 
+        /// <summary>
+        /// Tulostaa kaikki laskulistassa olevat laskut konsoliin
+        /// </summary>
         static void PrintAllInvoices()
         {
             Console.Clear();
@@ -240,6 +282,9 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Kysyy käyttäjältä kokonaisluvun ja tulostaa sen perusteella löytyvän laskun laskulistasta
+        /// </summary>
         static void PrintInvoiceBasedOnNumber()
         {
             Console.Clear();
@@ -297,6 +342,9 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Kysyy käyttäjältä syötteenä nimen ja tulostaa sen perusteella löytyvän laskun/laskut laskulistasta
+        /// </summary>
         static void PrintInvoiceBasedOnCustomer()
         {
             Console.Clear();
@@ -360,6 +408,9 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Tulostaa tuotelistan, kysyy käyttäjältä tuotteen numeroa ja tulostaa kaikki laskut laskulistasta jotka sisältävät kyseisen tuotteen
+        /// </summary>
         static void PrintInvoicesBasedOnProduct()
         {
             Console.Clear();
@@ -447,6 +498,9 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Tulostaa tuotelistan konsoliin, kysyy haluaako käyttäjä lisätä tuotteen listaan ja lisää tuotteen jos käyttäjä haluaa
+        /// </summary>
         static void AddProduct()
         {
             while (true)
@@ -468,6 +522,9 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Tulostaa kaikki tuotelistan tuotteet konsoliin
+        /// </summary>
         static void PrintAllProducts()
         {
             Console.Clear();
@@ -488,6 +545,10 @@ namespace Harjoitustyo
             }
         }
 
+        /// <summary>
+        /// Kutsuu erillisiä metodeita jotka palauttavat käyttäjän antamat arvot muuttujiin ja palauttaa niiden avulla luodun Product olion
+        /// </summary>
+        /// <returns>Product tyyppinen olio</returns>
         static Product CreateNewProduct()
         {
             var productName = ValidateString("Anna tuotteen nimi: ");
@@ -499,6 +560,12 @@ namespace Harjoitustyo
             return new Product(productName, unit, price);
         }
 
+        /// <summary>
+        /// Kysyy käyttäjältä string tyyppistä syötettä, tarkistaa että se ei ole tyhjä ja palauttaa hyväksytyn syötteen kutsujalle.
+        /// Saa parametrinä infotekstin joka käyttäjälle näytetään
+        /// </summary>
+        /// <param name="info">string</param>
+        /// <returns>string</returns>
         static string ValidateString(string info)
         {
             Console.Clear();
@@ -526,6 +593,12 @@ namespace Harjoitustyo
             return userInput;
         }
 
+        /// <summary>
+        /// Kysyy käyttäjältä int tyyppistä syötettä ja palauttaa hyväksytyn syötteen kutsujalle.
+        /// Saa parametrinä infotekstin joka käyttäjälle näytetään
+        /// </summary>
+        /// <param name="info">string</param>
+        /// <returns>int</returns>
         static int ValidateInt(string info)
         {
             Console.Clear();
@@ -551,6 +624,12 @@ namespace Harjoitustyo
             return userInput;
         }
 
+        /// <summary>
+        /// Kysyy käyttäjältä double tyyppistä syötettä ja palauttaa hyväksytyn syötteen kutsujalle.
+        /// Saa parametrinä infotekstin joka käyttäjälle näytetään
+        /// </summary>
+        /// <param name="info">string</param>
+        /// <returns>double</returns>
         static double ValidateDouble(string info)
         {
             Console.Clear();

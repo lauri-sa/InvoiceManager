@@ -1,5 +1,8 @@
 ﻿namespace Harjoitustyo.Models
 {
+    /// <summary>
+    /// Luokka joka toimii laskurivin tietomallina
+    /// </summary>
     internal class InvoiceLine
     {
         public Product Product { get; set; }
