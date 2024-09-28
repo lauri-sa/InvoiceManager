@@ -15,7 +15,7 @@ This is a .NET console application developed in C# as a school project. The appl
 
 ## Installation
 
-**Clone the repository:** `git clone https://github.com/yourusername/InvoiceManager.git`
+**Clone the repository:** `git clone https://github.com/lauri-sa/InvoiceManager.git`
 
 **Navigate to the project directory:** `cd InvoiceManager`
 
